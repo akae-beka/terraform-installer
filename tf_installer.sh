@@ -3,10 +3,10 @@
 set -o pipefail
 
 TF_RELEASE_URL="https://releases.hashicorp.com/terraform"
-TF_DOWNLOAD_URL="https://www.terraform.io/downloads.html"
+TF_DOWNLOAD_URL="https://www.terraform.io/downloads"
 
 function tf_download_binary() {
-  latest_version=$(curl -s -N ${TF_DOWNLOAD_URL} | grep "checksums" | head -n 1 | awk '{print $5}')
+  latest_version=$(curl -s -N ${TF_DOWNLOAD_URL} | grep -o 'latest.*$' | cut -d ">" -f 3 | awk '{print $2}')
   curl -sO ${TF_RELEASE_URL}/${latest_version}/terraform_${latest_version}_linux_amd64.zip
 }
 
