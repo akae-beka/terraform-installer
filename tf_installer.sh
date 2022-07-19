@@ -1,18 +1,18 @@
 #!/bin/bash
 
-set -o pipefail
+set -euo pipefail
 
 TF_RELEASE_URL="https://releases.hashicorp.com/terraform"
 TF_DOWNLOAD_URL="https://www.terraform.io/downloads"
 
 function tf_download_binary() {
   latest_version=$(curl -s -N ${TF_DOWNLOAD_URL} | grep -o 'latest.*$' | cut -d ">" -f 3 | awk '{print $2}')
-  curl -sO ${TF_RELEASE_URL}/${latest_version}/terraform_${latest_version}_linux_amd64.zip
+  curl -sO ${TF_RELEASE_URL}/"${latest_version}"/terraform_"${latest_version}"_linux_amd64.zip
 }
 
 function tf_install_binary {
-  unzip -oq terraform_${latest_version}_linux_amd64.zip -d /usr/local/bin
-  rm -rf terraform_${latest_version}_linux_amd64.zip
+  unzip -oq terraform_"${latest_version}"_linux_amd64.zip -d /usr/local/bin
+  rm -rf terraform_"${latest_version}"_linux_amd64.zip
   echo "Terraform $(terraform -v | head -1 | awk '{print $2}') is installed."
 }
 
