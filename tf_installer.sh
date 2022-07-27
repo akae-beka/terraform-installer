@@ -35,7 +35,7 @@ function tf_install_binary() {
   rm -rf tf_binary_latest.zip
 }
 
-function tf_run() {
+function tf_main() {
 
   if [ -x "$(command -v terraform)" ]; then
     echo "Terraform is installed."
@@ -59,4 +59,4 @@ function tf_run() {
 
 }
 
-tf_run
+tf_main
