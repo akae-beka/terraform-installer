@@ -6,12 +6,12 @@ TF_RELEASE_URL="https://releases.hashicorp.com/terraform"
 TF_GITHUB_RELEASE_URL="https://api.github.com/repos/hashicorp/terraform/releases/latest"
 
 function get_tf_latest_version() {
-  curl -s "${TF_GITHUB_RELEASE_URL}" | jq -r ' . | .tag_name ' | cut -d 'v' -f 2
+  curl -s "${TF_GITHUB_RELEASE_URL}" | jq -r '.tag_name ' | awk 'match($0, /([0-9]).([0-9]).([0-9])/, m){print m[0]}'
 }
 
 function tf_install_binary() {
   version="$(get_tf_latest_version)"
-  echo "Downloading Terraform v${version}."
+  echo "Downloading Terraform ${version}."
   curl -s -f -L "${TF_RELEASE_URL}/${version}/terraform_${version}_linux_amd64.zip" -o tf_binary_latest.zip
   
   retVal=$?
@@ -19,28 +19,26 @@ function tf_install_binary() {
     echo "Failed to download Terraform binary."
     exit $retVal
   else
-    echo "Downloaded successfully."
+    printf "Download successfully.\nInstalling Terraform ...\n"
+    unzip -oq tf_binary_latest.zip -d /usr/local/bin
   fi
-
-  echo "Installing Terraform in /usr/local/bin ..."
-  unzip -oq tf_binary_latest.zip -d /usr/local/bin
   
   if ! command -v terraform &> /dev/null; then
     echo "Terraform installation failed."
     exit 0
   else
     echo "Terraform has installed at /usr/local/bin successfully."
+    rm -rf tf_binary_latest.zip
   fi
   
-  rm -rf tf_binary_latest.zip
 }
 
 function tf_main() {
 
-  if [ -x "$(command -v terraform)" ]; then
+  if command -v terraform &> /dev/null; then
     echo "Terraform is installed."
     # If Terraform is installed, get the local version of Terraform to compare with the function (get_tf_latest_version) in next conditionals.
-    tf_local_version=$(terraform -v | awk 'FNR <= 1 {print $2}' | cut -d 'v' -f 2)
+    tf_local_version=$(terraform -v | head -1 | awk 'match($0, /([0-9]).([0-9]).([0-9])/, m){print m[0]}')
 
     # If the local version of Terraform is up to date, displays a message and ends the script.
     # If the local version of Terraform is out of date, displays a message to download and install the latest version.
