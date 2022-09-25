@@ -6,12 +6,12 @@ TF_RELEASE_URL="https://releases.hashicorp.com/terraform"
 TF_GITHUB_RELEASE_URL="https://api.github.com/repos/hashicorp/terraform/releases/latest"
 
 function get_tf_latest_version() {
-  curl -s "${TF_GITHUB_RELEASE_URL}" | jq -r ' . | .tag_name ' | cut -d 'v' -f 2
+  curl -s "${TF_GITHUB_RELEASE_URL}" | jq -r '.tag_name ' | awk 'match($0, /([0-9]).([0-9]).([0-9])/, m){print m[0]}'
 }
 
 function tf_install_binary() {
   version="$(get_tf_latest_version)"
-  echo "Downloading Terraform v${version}."
+  echo "Downloading Terraform ${version}."
   curl -s -f -L "${TF_RELEASE_URL}/${version}/terraform_${version}_linux_amd64.zip" -o tf_binary_latest.zip
   
   retVal=$?
